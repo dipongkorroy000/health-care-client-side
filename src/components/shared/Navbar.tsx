@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { Menu } from "lucide-react";
 
-const PublicNavbar = () => {
+const Navbar = () => {
   const navItems = [
     { href: "#", label: "Consultation" },
     { href: "#", label: "Health Plans" },
@@ -66,4 +66,4 @@ const PublicNavbar = () => {
   );
 };
 
-export default PublicNavbar;
+export default Navbar;
