@@ -7,9 +7,9 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
 import { loginUser } from "@/services/auth/loginUser";
 
-const LoginForm = () => {
+const LoginForm = ({ redirect }: { redirect: string | undefined }) => {
   const [state, formAction, isPending] = useActionState(loginUser, null);
-  console.log("state", state);
+  // console.log("state", state);
   // this is from data validation function -> before api call
   const getFieldError = (fieldName: string) => {
     if (state && state.errors) {
@@ -19,6 +19,7 @@ const LoginForm = () => {
 
   return (
     <form action={formAction}>
+      {redirect && <input type="hidden" name="redirect" value={redirect}></input>}
       <FieldGroup>
         <div className="grid grid-cols-1 gap-4">
           {/* Email */}

@@ -2,7 +2,10 @@
 "use server";
 import { parse } from "cookie";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import z from "zod";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { getDefaultDashboardRoute, isValidRedirectForRole, UserRole } from "@/lib/auth-utils";
 
 const loginValidationZodSchema = z.object({
   email: z.email({ message: "Email is required" }),
@@ -18,7 +21,7 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
       email: formData.get("email"),
       password: formData.get("password"),
     };
-
+    const redirectTo = formData.get("redirect") || null;
     const validatedFields = loginValidationZodSchema.safeParse(loginData);
 
     if (!validatedFields.success) {
@@ -33,13 +36,11 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
       body: JSON.stringify(loginData),
       headers: { "Content-Type": "application/json" },
     });
-
-    const result = await res.json();
-
     const setCookieHeaders = res.headers.getSetCookie();
 
     let accessTokenObj: null | any = null;
     let refreshTokenObj: null | any = null;
+
     // cookie parse by cookie npm package using
     if (setCookieHeaders && setCookieHeaders.length > 0) {
       setCookieHeaders.forEach((cookie: string) => {
@@ -57,21 +58,36 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
     (await cookies()).set("accessToken", accessTokenObj.accessToken, {
       secure: true,
       httpOnly: true,
-      maxAge: parseInt(accessTokenObj["Max-Age"]),
+      maxAge: parseInt(accessTokenObj["Max-Age"] || 1000 * 60 * 60 * 24),
       path: accessTokenObj.Path || "/",
-      sameSite: accessTokenObj.SameSite,
+      sameSite: accessTokenObj.SameSite || "none",
     });
 
     (await cookies()).set("refreshToken", refreshTokenObj.refreshToken, {
       secure: true,
       httpOnly: true,
-      maxAge: parseInt(refreshTokenObj["Max-Age"]),
+      maxAge: parseInt(refreshTokenObj["Max-Age"]) || 1000 * 60 * 60 * 24 * 30,
       path: refreshTokenObj.Path || "/",
-      sameSite: refreshTokenObj.SameSite,
+      sameSite: refreshTokenObj.SameSite || "none",
     });
 
-    return result;
-  } catch (error) {
+    const verifiedToken: JwtPayload | string = jwt.verify(accessTokenObj.accessToken, process.env.JWT_SECRET as string);
+
+    if (typeof verifiedToken === "string") {
+      throw new Error("Invalid token");
+    }
+
+    const userRole: UserRole = verifiedToken.role;
+
+    if (redirectTo) {
+      const requestedPath = redirectTo.toString();
+
+      if (isValidRedirectForRole(requestedPath, userRole)) redirect(requestedPath);
+      else redirect(getDefaultDashboardRoute(userRole));
+    }
+  } catch (error: any) {
+    if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
+
     console.log(error);
 
     return { error: "Login failed" };
