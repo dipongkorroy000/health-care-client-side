@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { parse } from "cookie";
-import { cookies } from "next/headers";
+
 import { redirect } from "next/navigation";
 import z from "zod";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { getDefaultDashboardRoute, isValidRedirectForRole, UserRole } from "@/lib/auth-utils";
+import { setCookie } from "./tokenHandler";
 
 const loginValidationZodSchema = z.object({
   email: z.email({ message: "Email is required" }),
@@ -51,11 +52,11 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
       });
     }
 
-    // console.log("setCookie", accessTokenObj["Max-Age"], refreshTokenObj);
+    // when login -> accessToken fetch backend -> then set accessToken frontend web
 
     if (!accessTokenObj || !refreshTokenObj) throw new Error("No Set-Cookie header found");
 
-    (await cookies()).set("accessToken", accessTokenObj.accessToken, {
+    await setCookie("accessToken", accessTokenObj.accessToken, {
       secure: true,
       httpOnly: true,
       maxAge: parseInt(accessTokenObj["Max-Age"] || 1000 * 60 * 60 * 24),
@@ -63,7 +64,7 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
       sameSite: accessTokenObj.SameSite || "none",
     });
 
-    (await cookies()).set("refreshToken", refreshTokenObj.refreshToken, {
+    await setCookie("refreshToken", refreshTokenObj.refreshToken, {
       secure: true,
       httpOnly: true,
       maxAge: parseInt(refreshTokenObj["Max-Age"]) || 1000 * 60 * 60 * 24 * 30,
@@ -79,12 +80,17 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
     const userRole: UserRole = verifiedToken.role;
 
+    const result = await res.json();
+    if (!result.success) throw new Error("Login failed");
+
     if (redirectTo) {
+      // when user get any protected route then navigate login and again protected route navigate
       const requestedPath = redirectTo.toString();
 
       if (isValidRedirectForRole(requestedPath, userRole)) redirect(requestedPath);
       else redirect(getDefaultDashboardRoute(userRole));
-    }
+      // ------
+    } else redirect(getDefaultDashboardRoute(userRole)); // when user just login then call this
   } catch (error: any) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
 
