@@ -87,10 +87,10 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
       // when user get any protected route then navigate login and again protected route navigate
       const requestedPath = redirectTo.toString();
 
-      if (isValidRedirectForRole(requestedPath, userRole)) redirect(requestedPath);
-      else redirect(getDefaultDashboardRoute(userRole));
+      if (isValidRedirectForRole(requestedPath, userRole)) redirect(`${requestedPath}?loggedIn=true`);
+      else redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`);
       // ------
-    } else redirect(getDefaultDashboardRoute(userRole)); // when user just login then call this
+    } else redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`); // when user just login then call this
   } catch (error: any) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
 
