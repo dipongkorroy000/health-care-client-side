@@ -9,7 +9,7 @@ import { loginUser } from "@/services/auth/loginUser";
 
 const LoginForm = ({ redirect }: { redirect: string | undefined }) => {
   const [state, formAction, isPending] = useActionState(loginUser, null);
-  // console.log("state", state);
+  // console.log("state login", state);
   // this is from data validation function -> before api call
   const getFieldError = (fieldName: string) => {
     if (state && state.errors) {

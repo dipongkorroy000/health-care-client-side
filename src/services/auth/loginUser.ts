@@ -81,7 +81,7 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
     const userRole: UserRole = verifiedToken.role;
 
     const result = await res.json();
-    if (!result.success) throw new Error("Login failed");
+    if (!result.success) throw new Error(result.message || "Login failed");
 
     if (redirectTo) {
       // when user get any protected route then navigate login and again protected route navigate
@@ -96,6 +96,9 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
     console.log(error);
 
-    return { error: "Login failed" };
+    return {
+      success: false,
+      message: process.env.NODE_ENV === "development" ? error.message : "Login failed. You might have entered incorrect email or password.",
+    };
   }
 };
