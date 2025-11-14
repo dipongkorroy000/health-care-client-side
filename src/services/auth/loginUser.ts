@@ -1,41 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
-import { parse } from "cookie";
+import {parse} from "cookie";
 
-import { redirect } from "next/navigation";
+import {redirect} from "next/navigation";
 import z from "zod";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { getDefaultDashboardRoute, isValidRedirectForRole, UserRole } from "@/lib/auth-utils";
-import { setCookie } from "./tokenHandler";
+import jwt, {JwtPayload} from "jsonwebtoken";
+import {getDefaultDashboardRoute, isValidRedirectForRole, UserRole} from "@/lib/auth-utils";
+import {setCookie} from "./tokenHandler";
+import {zodValidator} from "@/lib/zodValidator";
 
 const loginValidationZodSchema = z.object({
-  email: z.email({ message: "Email is required" }),
+  email: z.email({message: "Email is required"}),
   password: z
     .string("Password is required")
-    .min(6, { error: "Password is required and must be at least 6 characters long" })
-    .max(100, { error: "Password must be at most 100 characters long" }),
+    .min(6, {error: "Password is required and must be at least 6 characters long"})
+    .max(100, {error: "Password must be at most 100 characters long"}),
 });
 
 export const loginUser = async (_currentState: any, formData: any): Promise<any> => {
   try {
-    const loginData = {
+    const payload = {
       email: formData.get("email"),
       password: formData.get("password"),
     };
     const redirectTo = formData.get("redirect") || null;
-    const validatedFields = loginValidationZodSchema.safeParse(loginData);
 
-    if (!validatedFields.success) {
-      return {
-        success: false,
-        errors: validatedFields.error.issues.map((issue) => ({ field: issue.path[0], message: issue.message })),
-      };
-    }
+    if (zodValidator(payload, loginValidationZodSchema).success === false) return zodValidator(payload, loginValidationZodSchema);
+
+    const validatedPayload = zodValidator(payload, loginValidationZodSchema).data;
 
     const res = await fetch("http://localhost:5000/api/v1/auth/login", {
       method: "POST",
-      body: JSON.stringify(loginData),
-      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(validatedPayload),
+      headers: {"Content-Type": "application/json"},
     });
     const setCookieHeaders = res.headers.getSetCookie();
 
