@@ -35,7 +35,7 @@ const TablePagination = ({currentPage, totalPages}: TablePaginationProps) => {
         {Array.from({length: Math.min(5, totalPages)}, (_, index) => {
           let pageNumber;
 
-          console.log("index", index);
+          // console.log("index", index);
 
           if (totalPages <= 5) pageNumber = index + 1;
           else if (currentPage <= 3) pageNumber = index + 1;
