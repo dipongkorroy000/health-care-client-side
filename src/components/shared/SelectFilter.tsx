@@ -1,3 +1,5 @@
+"use client";
+
 import {useRouter, useSearchParams} from "next/navigation";
 import {useTransition} from "react";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "../ui/select";
@@ -11,7 +13,7 @@ interface SelectFilterProps {
 const SelectFilter = ({paramName, placeholder, options}: SelectFilterProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [isPending, startTransition] = useTransition();
 
   const currentValue = searchParams.get(paramName) || "all";

@@ -7,7 +7,7 @@ const serverFetchHelper = async (endpoint: string, options: RequestInit): Promis
   const {headers, ...restOptions} = options;
 
   // console.log({body: options.body});
-
+  // console.log({endpoint: endpoint});
   const accessToken = await getCookie("accessToken");
 
   const response = await fetch(`${BACKEND_API_URL}${endpoint}`, {

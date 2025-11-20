@@ -3,20 +3,20 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import cardioDoc from "../../../assets/images/doctor-cardiologist.jpg";
-import neurolDoc from "../../../assets/images/doctor-neurologist.jpg";
+import neurologyDoc from "../../../assets/images/doctor-neurologist.jpg";
 import orthoDoc from "../../../assets/images/doctor-orthopedic.jpg";
 
 const doctors = [
   { name: "Dr. Cameron Williamson", specialty: "Cardiologist", rating: 4.9, reviews: 23, image: cardioDoc },
-  { name: "Dr. Leslie Alexander", specialty: "Neurologist", rating: 4.8, reviews: 45, image: neurolDoc },
+  { name: "Dr. Leslie Alexander", specialty: "Neurologist", rating: 4.8, reviews: 45, image: neurologyDoc },
   { name: "Dr. Robert Fox", specialty: "Orthopedic", rating: 4.9, reviews: 32, image: orthoDoc },
 ];
 
 const DoctorCard = ({ doctor }: { doctor: (typeof doctors)[0] }) => {
   return (
     <Card className="text-center overflow-hidden hover:shadow-xl transition-shadow duration-300">
-      <CardHeader className="bg-blue-50/50 items-center p-6">
-        <Image src={doctor.image} alt={doctor.name} width={96} height={96} className="rounded-full border-4 border-white shadow-md" />
+      <CardHeader className="bg-blue-50/50 items-center p-6 border justify-center">
+        <Image src={doctor.image} alt={doctor.name} width={96} height={96} className="rounded-full border-4 border-white shadow-md items-center" />
       </CardHeader>
       <CardContent className="p-6">
         <CardTitle className="text-lg">{doctor.name}</CardTitle>
@@ -42,7 +42,7 @@ const TopRatedDoctors = () => {
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="text-3xl font-bold text-foreground">Our Top Rated Doctor</h2>
           <p className="text-muted-foreground mt-4">
-            Access to medical experts from various specialities, ready to provide you with top-notch medical services.
+            Access to medical experts from various specialties, ready to provide you with top-notch medical services.
           </p>
         </div>
 
