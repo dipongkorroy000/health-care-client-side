@@ -1,13 +1,5 @@
-import React from "react";
-
-const Appointments_Managements = () => {
-  return (
-    <div>
-      <h2>Appoints managements</h2>
-      <h2>admin appointments</h2>
-      <p>all right reserved</p>
-    </div>
-  );
+const AdminAppointmentsManagementPage = () => {
+  return <div>AdminAppointmentsManagementPage</div>;
 };
 
-export default Appointments_Managements;
+export default AdminAppointmentsManagementPage;

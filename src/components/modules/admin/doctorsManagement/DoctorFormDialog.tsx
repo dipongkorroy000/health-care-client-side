@@ -33,7 +33,7 @@ const DoctorFormDialog = ({open, onClose, onSuccess, doctor, specialties}: IDoct
       onClose();
       // -----
     } else if (state && !state.success) toast.error(state.message);
-  }, [state, onSuccess, onClose]);
+  }, [state]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

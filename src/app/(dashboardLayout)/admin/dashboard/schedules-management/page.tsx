@@ -1,11 +1,5 @@
-import React from "react";
-
-const SchedulesManagement = () => {
-  return (
-    <div>
-      <h2>ScheduleManagement</h2>
-    </div>
-  );
+const AdminSchedulesManagementPage = () => {
+  return <div>AdminSchedulesManagementPage</div>;
 };
 
-export default SchedulesManagement;
+export default AdminSchedulesManagementPage;

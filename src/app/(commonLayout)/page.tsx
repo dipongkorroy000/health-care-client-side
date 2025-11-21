@@ -18,11 +18,11 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        {/* <Hero /> */}
-        {/* <Specialties /> */}
+        <Hero />
+        <Specialties />
         <TopRatedDoctors />
-        {/* <Steps /> */}
-        {/* <Testimonials /> */}
+        <Steps />
+        <Testimonials />
       </main>
     </>
   );
