@@ -18,6 +18,7 @@ export interface IDoctor {
   createdAt?: string;
   updatedAt?: string;
   doctorSpecialties?: Array<{
+    specialtiesId: string;
     specialties?: {
       id: string;
       title: string;
