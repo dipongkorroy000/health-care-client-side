@@ -28,4 +28,6 @@ export const updateDoctorZodSchema = z.object({
   qualification: z.string().optional(),
   currentWorkingPlace: z.string().optional(),
   designation: z.string().optional(),
+  specialties: z.array(z.uuid("Each specialty must be a valid UUID")).optional(),
+  removeSpecialties: z.array(z.uuid("Each specialty to remove must be a valid UUID")).optional(),
 });

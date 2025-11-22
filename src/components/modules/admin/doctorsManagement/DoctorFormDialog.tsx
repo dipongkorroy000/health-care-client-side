@@ -11,6 +11,7 @@ import {ISpecialty} from "@/types/specialties.interface";
 import {useActionState, useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 import SpecialtyMultiSelect from "./SpecialtyMultiSelect";
+import Image from "next/image";
 
 interface IDoctorFormDialogProps {
   open: boolean;
@@ -28,45 +29,42 @@ const DoctorFormDialog = ({open, onClose, onSuccess, doctor, specialties}: IDoct
 
   const [gender, setGender] = useState<"MALE" | "FEMALE">(doctor?.gender || "MALE");
 
-  
-  
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-
-
-
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => setSelectedFile(e.target.files?.[0] || null);
 
   const [state, formAction, pending] = useActionState(isEdit ? updateDoctor.bind(null, doctor.id!) : createDoctor, null);
 
   const handleClose = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
-    
-    
-    
+
+    if (selectedFile) setSelectedFile(null);
+
     formRef.current?.reset(); // Clear form
     onClose(); // Close dialog
   };
 
   const specialtySelection = useSpecialtySelection({doctor, isEdit, open});
 
-  const getSpecialtyTitle = (id: string): string => {
-    return specialties?.find((s) => s.id === id)?.title || "Unknown";
-  };
+  const getSpecialtyTitle = (id: string): string => specialties?.find((s) => s.id === id)?.title || "Unknown";
 
   useEffect(() => {
     if (state?.success) {
       toast.success(state.message);
+      if (formRef.current) formRef.current.reset();
+
       onSuccess();
       onClose();
       // -----
     } else if (state && !state.success) {
       toast.error(state.message || "Invlied error");
-    
-      
-      
 
+      if (selectedFile && fileInputRef.current) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(selectedFile);
 
-
-      
+        fileInputRef.current.files = dataTransfer.files;
+      }
     }
   }, [state]);
 
@@ -245,17 +243,18 @@ const DoctorFormDialog = ({open, onClose, onSuccess, doctor, specialties}: IDoct
             {!isEdit && (
               <Field>
                 <FieldLabel htmlFor="file">Profile Photo</FieldLabel>
-                
-                
+                {selectedFile && (
+                  <Image
+                    //get from state if available
+                    src={typeof selectedFile === "string" ? selectedFile : URL.createObjectURL(selectedFile)}
+                    alt="Profile Photo Preview"
+                    width={40}
+                    height={40}
+                    className="mb-2 rounded-full"
+                  />
+                )}
 
-
-
-
-
-
-
-                
-                <Input ref={fileInputRef} id="file" name="file" type="file" accept="image/*"  />
+                <Input ref={fileInputRef} id="file" name="file" type="file" accept="image/*" onChange={handleFileChange} />
                 <p className="text-xs text-gray-500 mt-1">Upload a profile photo for the doctor</p>
                 <InputFieldError state={state} field="profilePhoto" />
               </Field>

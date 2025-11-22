@@ -79,11 +79,12 @@ export async function createDoctor(_prevState: any, formData: FormData) {
   try {
     const response = await server_fetch.post("/user/create-doctor", {body: newFormData});
 
-    return await response.json();
+    const result = await response.json();
+    return result;
   } catch (error: any) {
     console.log(error);
 
-    return {success: false, message: `${process.env.NODE_ENV === "development" ? error.message : "Something went wrong"}`};
+    return {success: false, message: `${process.env.NODE_ENV === "development" ? error.message : "Something went wrong"}`, formData: payload};
   }
 }
 
@@ -118,32 +119,63 @@ export async function getDoctorById(id: string) {
 }
 
 export async function updateDoctor(id: string, _prevState: any, formData: FormData) {
-  try {
-    const payload: Partial<IDoctor> = {
-      name: formData.get("name") as string,
-      contactNumber: formData.get("contactNumber") as string,
-      address: formData.get("address") as string,
-      registrationNumber: formData.get("registrationNumber") as string,
-      experience: Number(formData.get("experience") as string),
-      gender: formData.get("gender") as "MALE" | "FEMALE",
-      appointmentFee: Number(formData.get("appointmentFee") as string),
-      qualification: formData.get("qualification") as string,
-      currentWorkingPlace: formData.get("currentWorkingPlace") as string,
-      designation: formData.get("designation") as string,
+  const payload: Partial<IDoctor> = {
+    name: formData.get("name") as string,
+    contactNumber: formData.get("contactNumber") as string,
+    address: formData.get("address") as string,
+    registrationNumber: formData.get("registrationNumber") as string,
+    experience: Number(formData.get("experience") as string),
+    gender: formData.get("gender") as "MALE" | "FEMALE",
+    appointmentFee: Number(formData.get("appointmentFee") as string),
+    qualification: formData.get("qualification") as string,
+    currentWorkingPlace: formData.get("currentWorkingPlace") as string,
+    designation: formData.get("designation") as string,
+  };
+
+  // Parse specialties array (for adding new specialties)
+  const specialtiesValue = formData.get("specialties") as string;
+  if (specialtiesValue) {
+    try {
+      const parsed = JSON.parse(specialtiesValue);
+
+      if (Array.isArray(parsed) && parsed.length > 0) payload.specialties = parsed;
+    } catch {}
+  }
+
+  // Parse removeSpecialties array (for removing existing specialties)
+  const removeSpecialtiesValue = formData.get("removeSpecialties") as string;
+  if (removeSpecialtiesValue) {
+    try {
+      const parsed = JSON.parse(removeSpecialtiesValue);
+      
+      if (Array.isArray(parsed) && parsed.length > 0) payload.removeSpecialties = parsed;
+    } catch {}
+  }
+
+  const validatedPayload = zodValidator(payload, updateDoctorZodSchema);
+  if (!validatedPayload.success && validatedPayload.errors) {
+    return {
+      success: validatedPayload.success,
+      message: "Validation failed",
+      formData: payload,
+      errors: validatedPayload.errors,
     };
+  }
+  if (!validatedPayload.data) return {success: false, message: "Validation failed", formData: payload};
 
-    const validatedPayload = zodValidator(payload, updateDoctorZodSchema).data;
-
+  try {
     const response = await server_fetch.patch(`/doctors/${id}`, {
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(validatedPayload),
+      body: JSON.stringify(validatedPayload.data),
     });
 
-    return await response.json();
+    const result = await response.json();
+    // console.log({result}); // clg
+    return result;
   } catch (error: any) {
     console.log(error);
 
-    return {success: false, message: `${process.env.NODE_ENV === "development" ? error.message : "Something went wrong"}`};
+    return {success: false, message: `${process.env.NODE_ENV === "development" ? error.message : "Something went wrong"}`, formData: payload};
   }
 }
 

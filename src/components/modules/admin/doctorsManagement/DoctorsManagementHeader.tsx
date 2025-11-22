@@ -21,9 +21,11 @@ const DoctorsManagementHeader = ({specialties}: DoctorsManagementHeaderProps) =>
     startTransition(() => router.refresh());
   };
 
+  const [dialogKey, setDialogKey] = useState(0);
+
   return (
     <>
-      <DoctorFormDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} onSuccess={handleSuccess} specialties={specialties} />
+      <DoctorFormDialog key={dialogKey} open={isDialogOpen} onClose={() => setIsDialogOpen(false)} onSuccess={handleSuccess} specialties={specialties} />
 
       <ManagementPageHeader
         title="Doctors Management"
@@ -31,7 +33,10 @@ const DoctorsManagementHeader = ({specialties}: DoctorsManagementHeaderProps) =>
         action={{
           label: "Add Doctor",
           icon: Plus,
-          onClick: () => setIsDialogOpen(true),
+          onClick: () => {
+            setIsDialogOpen(true);
+            setDialogKey((prev) => prev + 1);
+          },
         }}
       />
     </>
