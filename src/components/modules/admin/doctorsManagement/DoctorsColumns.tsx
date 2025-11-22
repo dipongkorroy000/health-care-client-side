@@ -11,6 +11,7 @@ export const doctorsColumns: Column<IDoctor>[] = [
   {
     header: "Doctor",
     accessor: (doctor) => <UserInfoCell name={doctor.name} email={doctor.email} photo={doctor.profilePhoto as string} />,
+    sortKey: "name",
   },
   {
     header: "Specialties",
@@ -42,10 +43,12 @@ export const doctorsColumns: Column<IDoctor>[] = [
   {
     header: "Experience",
     accessor: (doctor) => <span className="text-sm font-medium">{doctor.experience ?? 0} years</span>,
+    sortKey: "experience",
   },
   {
     header: "Fee",
     accessor: (doctor) => <span className="text-sm font-semibold text-green-600">${doctor.appointmentFee}</span>,
+    sortKey: "appointmentFee",
   },
   {
     header: "Rating",
@@ -55,6 +58,7 @@ export const doctorsColumns: Column<IDoctor>[] = [
         <span className="text-sm font-medium">{doctor.averageRating!.toFixed(1)}</span>
       </div>
     ),
+    sortKey: "averageRating",
   },
   {
     header: "Gender",
@@ -67,5 +71,6 @@ export const doctorsColumns: Column<IDoctor>[] = [
   {
     header: "Joined",
     accessor: (doctor) => <DateCell date={doctor.createdAt} />,
+    sortKey: "createdAt",
   },
 ];
