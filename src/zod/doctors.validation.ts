@@ -13,6 +13,8 @@ export const createDoctorZodSchema = z.object({
   qualification: z.string().min(3, "Qualification must be at least 3 characters long"),
   currentWorkingPlace: z.string().min(3, "Current Working Place must be at least 3 characters long"),
   designation: z.string().min(2, "Designation must be at least 2 characters long"),
+  specialties: z.array(z.uuid("Each specialty must be a valid UUID")).min(1, "At least one specialty is required"),
+  profilePhoto: z.instanceof(File).refine((file) => file.size > 0, {message: "Profile photo is required"}),
 });
 
 export const updateDoctorZodSchema = z.object({

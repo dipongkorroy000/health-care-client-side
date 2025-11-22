@@ -10,7 +10,7 @@ import {Star} from "lucide-react";
 export const doctorsColumns: Column<IDoctor>[] = [
   {
     header: "Doctor",
-    accessor: (doctor) => <UserInfoCell name={doctor.name} email={doctor.email} photo={doctor.profilePhoto} />,
+    accessor: (doctor) => <UserInfoCell name={doctor.name} email={doctor.email} photo={doctor.profilePhoto as string} />,
   },
   {
     header: "Specialties",
