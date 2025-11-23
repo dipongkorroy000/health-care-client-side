@@ -10,7 +10,6 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "../
 export interface Column<T> {
   header: string;
   accessor: keyof T | ((row: T) => React.ReactNode);
-  className?: string;
   sortKey?: string;
 }
 
@@ -24,10 +23,6 @@ interface ManagementTableProps<T> {
   emptyMessage?: string;
   isRefreshing?: boolean;
 }
-
-// const ManagementTable<T> = (props: ManagementTableProps<T>) => {
-//   return <div>ManagementTable</div>;
-// };
 
 function ManagementTable<T>({
   data = [],
@@ -74,6 +69,7 @@ function ManagementTable<T>({
 
     return currentSortOrder === "asc" ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />;
   };
+
   return (
     <>
       <div className="rounded-lg border relative">
@@ -90,8 +86,8 @@ function ManagementTable<T>({
         <Table>
           <TableHeader>
             <TableRow>
-              {columns?.map((column, colIndex) => (
-                <TableHead key={colIndex} className={column.className}>
+              {columns?.map((column, i) => (
+                <TableHead key={i}>
                   {column.sortKey ? (
                     <span
                       onClick={() => handleSort(column.sortKey!)}
@@ -105,25 +101,27 @@ function ManagementTable<T>({
                   )}
                 </TableHead>
               ))}
+
               {hasActions && <TableHead className="w-[70px]">Actions</TableHead>}
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {data.length === 0 ? (
+            {data.length === 0 && (
               <TableRow>
                 <TableCell colSpan={columns.length + (hasActions ? 1 : 0)} className="text-center py-8 text-muted-foreground">
                   {emptyMessage}
                 </TableCell>
               </TableRow>
-            ) : (
+            )}
+
+            {data.length > 0 &&
               data?.map((item) => (
                 <TableRow key={getRowKey(item)}>
-                  {columns.map((col, idx) => (
-                    <TableCell key={idx} className={col.className}>
-                      {typeof col.accessor === "function" ? col.accessor(item) : String(item[col.accessor])}
-                    </TableCell>
+                  {columns.map((col, i) => (
+                    <TableCell key={i}>{typeof col.accessor === "function" ? col.accessor(item) : String(item[col.accessor])}</TableCell>
                   ))}
+
                   {hasActions && (
                     <TableCell>
                       <DropdownMenu>
@@ -156,8 +154,7 @@ function ManagementTable<T>({
                     </TableCell>
                   )}
                 </TableRow>
-              ))
-            )}
+              ))}
           </TableBody>
         </Table>
       </div>

@@ -21,8 +21,10 @@ const AdminDoctorsManagementPage = async ({searchParams}: {searchParams: Promise
 
   return (
     <div className="space-y-6">
+      {/* add doctor */}
       <DoctorsManagementHeader specialties={specialtiesResult?.data || []} />
 
+      {/* search and filter doctors */}
       <DoctorFilters specialties={specialtiesResult?.data || []} />
 
       <Suspense fallback={<TableSkeleton columns={10} rows={10} />}>
