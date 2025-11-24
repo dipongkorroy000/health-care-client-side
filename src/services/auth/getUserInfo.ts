@@ -1,29 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import { UserInfo } from "@/types/user.interface";
-import { getCookie } from "./tokenHandler";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import {UserInfo} from "@/types/user.interface";
+import {server_fetch} from "@/lib/server-fetch";
 
-const getUserInfo = async (): Promise<UserInfo | null> => {
+const getUserInfo = async (): Promise<UserInfo | any> => {
+  let userInfo: UserInfo | any;
+
   try {
-    const accessToken = await getCookie("accessToken");
-    if (!accessToken) return null;
+    const response = await server_fetch.get("/auth/me", {
+      cache: "force-cache",
+      next: {tags: ["user-info"]}, // when update user data then call this api again-> user-info
+    });
 
-    const verifiedToken = jwt.verify(accessToken, process.env.JWT_SECRET as string) as JwtPayload;
-    if (!verifiedToken) return null;
+    const result = await response.json();
 
-    const userInfo: UserInfo = { email: verifiedToken.email, role: verifiedToken.role, name: verifiedToken.name || "unknown user" };
+    userInfo = {name: result.data.admin?.name || result.data.doctor?.name || result.data.patient?.name || "Unknown User", ...result.data};
 
     return userInfo;
-
-    // -----
   } catch (error: any) {
     console.log(error);
 
-    return null;
+    return {id: "", name: "Unknown User", email: "", role: "PATIENT"};
   }
-  // -----
 };
 
 export default getUserInfo;
