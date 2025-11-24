@@ -118,7 +118,9 @@ function ManagementTable<T>({
             {data.length > 0 &&
               data?.map((item) => (
                 <TableRow key={getRowKey(item)}>
-                  {columns.map((col, i) => (
+                  { 
+                  
+                  columns.map((col, i) => (
                     <TableCell key={i}>{typeof col.accessor === "function" ? col.accessor(item) : String(item[col.accessor])}</TableCell>
                   ))}
 

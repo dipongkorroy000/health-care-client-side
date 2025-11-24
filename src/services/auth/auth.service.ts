@@ -113,29 +113,30 @@ export async function getNewAccessToken() {
 
     //Case 1: Both tokens are missing - user is logged out
     if (!accessToken && !refreshToken) return {tokenRefreshed: false};
-
+    
     // Case 2 : Access Token exist- and need to verify
     if (accessToken) {
       const verifiedToken = await verifyAccessToken(accessToken);
-
+      
       if (verifiedToken.success) return {tokenRefreshed: false};
     }
-
+    
     //Case 3 : refresh Token is missing- user is logged out
     if (!refreshToken) return {tokenRefreshed: false};
-
+    
     //Case 4: Access Token is invalid/expired- try to get a new one using refresh token
     // This is the only case we need to call the API
-
+    
     // Now we know: accessToken is invalid/missing AND refreshToken exists
     // Safe to call the API
     let accessTokenObject: null | any = null;
     let refreshTokenObject: null | any = null;
-
+    
+    // console.log({refreshToken});
     // API Call - serverFetch will skip getNewAccessToken for /auth/refresh-token endpoint
     const response = await server_fetch.post("/auth/refresh-token", {headers: {Cookie: `refreshToken=${refreshToken}`}});
-
     const result = await response.json();
+    console.log({result}); // for debugging
 
     console.log("access token refreshed!!");
 

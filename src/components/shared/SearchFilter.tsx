@@ -23,7 +23,7 @@ const SearchFilter = ({placeholder = "Search...", paramName = "searchTerm"}: Sea
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
 
-    const initialValue = searchParams.get(paramName) || ""; 
+    const initialValue = searchParams.get(paramName) || "";
 
     if (debouncedValue === initialValue) return;
 
@@ -36,7 +36,7 @@ const SearchFilter = ({placeholder = "Search...", paramName = "searchTerm"}: Sea
     }
 
     startTransition(() => router.push(`?${params.toString()}`));
-  }, [debouncedValue, paramName, router, searchParams]);
+  }, [debouncedValue, paramName, router]);
 
   return (
     <div className="relative">

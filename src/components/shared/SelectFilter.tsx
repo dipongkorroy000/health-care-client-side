@@ -7,21 +7,22 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "../
 interface SelectFilterProps {
   paramName: string;
   placeholder?: string;
+  defaultValue?: string;
   options: {label: string; value: string}[];
 }
 
-const SelectFilter = ({paramName, placeholder, options}: SelectFilterProps) => {
+const SelectFilter = ({paramName, placeholder, defaultValue = "all", options}: SelectFilterProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [isPending, startTransition] = useTransition();
 
-  const currentValue = searchParams.get(paramName) || "all";
+  const currentValue = searchParams.get(paramName) || defaultValue;
 
   const handleChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    if (value === "all") params.delete(paramName);
+    if (value === defaultValue) params.delete(paramName);
     else if (value) params.set(paramName, value);
     else params.delete(paramName);
 

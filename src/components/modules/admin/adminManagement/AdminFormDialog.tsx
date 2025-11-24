@@ -50,7 +50,7 @@ const AdminFormDialog = ({open, onClose, onSuccess, admin}: IAdminFormDialogProp
         fileInputRef.current.files = dataTransfer.files;
       }
     }
-  }, [state, onSuccess, onClose, selectedFile]);
+  }, [state, selectedFile]);
 
   const handleClose = () => {
     setSelectedFile(null);

@@ -61,14 +61,20 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
     const verifiedToken: JwtPayload | string = jwt.verify(accessTokenObj.accessToken, process.env.JWT_SECRET as string);
 
-    if (typeof verifiedToken === "string") {
-      throw new Error("Invalid token");
-    }
+    if (typeof verifiedToken === "string") throw new Error("Invalid token");
 
     const userRole: UserRole = verifiedToken.role;
 
     const result = await res.json();
     if (!result.success) throw new Error(result.message || "Login failed");
+
+    if (result.data.needPasswordChange) {
+      if (redirectTo) {
+        const requestedPath = redirectTo.toString();
+
+        if (isValidRedirectForRole(requestedPath, userRole)) redirect(`/reset-password?redirect=${requestedPath}`);
+      } else redirect("/reset-password");
+    }
 
     if (redirectTo) {
       // when user get any protected route then navigate login and again protected route navigate
@@ -78,6 +84,7 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
       else redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`);
       // ------
     } else redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`); // when user just login then call this
+    //------
   } catch (error: any) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
 
