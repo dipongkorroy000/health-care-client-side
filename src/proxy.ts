@@ -19,23 +19,23 @@ export async function proxy(request: NextRequest) {
 
   //--- Token check ---
   // // If coming back after token refresh, remove the param and continue -- that means recursion function call avoid
-  const hasTokenRefreshedParam = request.nextUrl.searchParams.has("tokenRefreshed");
-  if (hasTokenRefreshedParam) {
-    const url = request.nextUrl.clone();
-    url.searchParams.delete("tokenRefreshed");
+  // const hasTokenRefreshedParam = request.nextUrl.searchParams.has("tokenRefreshed");
+  // if (hasTokenRefreshedParam) {
+  //   const url = request.nextUrl.clone();
+  //   url.searchParams.delete("tokenRefreshed");
 
-    return NextResponse.redirect(url);
-  }
-  // it is debugging line
-  const tokenRefreshResult = await getNewAccessToken();
+  //   return NextResponse.redirect(url);
+  // }
+  // // it is debugging line
+  // const tokenRefreshResult = await getNewAccessToken();
 
-  // If token was refreshed, redirect to same page to fetch with new token
-  if (tokenRefreshResult?.tokenRefreshed) {
-    const url = request.nextUrl.clone();
-    url.searchParams.set("tokenRefreshed", "true");
+  // // If token was refreshed, redirect to same page to fetch with new token
+  // if (tokenRefreshResult?.tokenRefreshed) {
+  //   const url = request.nextUrl.clone();
+  //   url.searchParams.set("tokenRefreshed", "true");
 
-    return NextResponse.redirect(url);
-  }
+  //   return NextResponse.redirect(url);
+  // }
   //--- Token check ---
 
   let userRole: UserRole | null = null;
