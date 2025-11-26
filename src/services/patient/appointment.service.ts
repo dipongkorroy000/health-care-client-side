@@ -1,9 +1,9 @@
 "use server";
-import {server_fetch} from "@/lib/server-fetch";
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
+import {server_fetch} from "@/lib/server-fetch";
 import {IAppointmentFormData} from "@/types/appointments.interface";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export async function createAppointment(data: IAppointmentFormData) {
   try {
     const response = await server_fetch.post("/appointment", {
@@ -38,7 +38,7 @@ export async function getMyAppointments(queryString?: string) {
 
 export async function getAppointmentById(appointmentId: string) {
   try {
-    const response = await server_fetch.get("/appointment/my-appointment");
+    const response = await server_fetch.get("/appointment/my-appointments");
     const result = await response.json();
 
     if (result.success && result.data) {

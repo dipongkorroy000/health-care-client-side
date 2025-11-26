@@ -160,13 +160,13 @@ export default function DoctorAppointmentDetailDialog({appointment, open, onClos
           <div className="border rounded-lg p-4">
             <h3 className="font-semibold text-lg mb-3">Prescription</h3>
 
-            {status === "CANCELED" && (
+            {status === "CANCEL" && (
               <div className="text-sm text-muted-foreground p-4 bg-red-50 border border-red-200 rounded-md">
                 <p className="text-red-800">⚠️ This appointment has been canceled. No prescription can be provided.</p>
               </div>
             )}
 
-            {!isCompleted && status !== "CANCELED" && (
+            {!isCompleted && status !== "CANCEL" && (
               <div className="text-sm text-muted-foreground p-4 bg-muted/50 rounded-md">
                 <p>
                   You can write a prescription once the appointment is marked as <span className="font-semibold text-green-700">COMPLETED</span>.

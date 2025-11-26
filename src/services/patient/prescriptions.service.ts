@@ -1,8 +1,9 @@
 "use server";
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {server_fetch} from "@/lib/server-fetch";
 import {IPrescriptionFormData} from "@/types/prescription.interface";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export async function createPrescription(data: IPrescriptionFormData) {
   try {
     const response = await server_fetch.post("/prescription", {

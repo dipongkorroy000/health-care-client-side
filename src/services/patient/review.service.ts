@@ -1,9 +1,9 @@
 "use server";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {server_fetch} from "@/lib/server-fetch";
 import {IReviewFormData} from "@/types/review.interface";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export async function getReviews(queryString?: string) {
   try {
     const url = queryString ? `/review?${queryString}` : "/review";

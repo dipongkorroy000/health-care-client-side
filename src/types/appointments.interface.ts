@@ -8,7 +8,7 @@ export enum AppointmentStatus {
   SCHEDULED = "SCHEDULED",
   INPROGRESS = "INPROGRESS",
   COMPLETED = "COMPLETED",
-  CANCELED = "CANCELED",
+  CANCELED = "CANCEL",
 }
 
 export enum PaymentStatus {

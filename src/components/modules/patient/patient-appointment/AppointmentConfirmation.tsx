@@ -1,4 +1,5 @@
 "use client";
+
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Separator} from "@/components/ui/separator";
@@ -25,10 +26,7 @@ const AppointmentConfirmation = ({doctor, schedule}: AppointmentConfirmationProp
     setIsBooking(true);
 
     try {
-      const result = await createAppointment({
-        doctorId: doctor.id!,
-        scheduleId: schedule.id,
-      });
+      const result = await createAppointment({doctorId: doctor.id as string, scheduleId: schedule.id});
 
       if (result.success) {
         setBookingSuccess(true);

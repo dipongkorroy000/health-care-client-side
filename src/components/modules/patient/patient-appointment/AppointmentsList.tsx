@@ -75,6 +75,7 @@ const AppointmentsList = ({appointments}: AppointmentsListProps) => {
                     Prescription
                   </Badge>
                 )}
+
                 {appointment.status === AppointmentStatus.COMPLETED && !appointment.review && (
                   <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 animate-pulse">
                     <MessageSquare className="h-3 w-3 mr-1" />
@@ -106,6 +107,7 @@ const AppointmentsList = ({appointments}: AppointmentsListProps) => {
                     {ds.specialties?.title || "N/A"}
                   </Badge>
                 ))}
+
                 {appointment.doctor.doctorSpecialties.length > 2 && (
                   <Badge variant="secondary" className="text-xs">
                     +{appointment.doctor.doctorSpecialties.length - 2} more
