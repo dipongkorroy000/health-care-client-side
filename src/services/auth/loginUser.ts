@@ -3,7 +3,6 @@
 import {parse} from "cookie";
 
 import {redirect} from "next/navigation";
-import z from "zod";
 import jwt, {JwtPayload} from "jsonwebtoken";
 import {getDefaultDashboardRoute, isValidRedirectForRole, UserRole} from "@/lib/auth-utils";
 import {setCookie} from "./tokenHandler";

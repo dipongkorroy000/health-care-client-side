@@ -1,9 +1,9 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import {useSearchParams, useRouter} from "next/navigation";
 import {} from "next/navigation";
-import { useEffect } from "react";
-import { toast } from "sonner";
+import {useEffect} from "react";
+import {toast} from "sonner";
 
 const LogoutSuccessToast = () => {
   const searchParams = useSearchParams();

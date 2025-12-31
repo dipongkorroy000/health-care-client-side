@@ -1,6 +1,5 @@
 "use client";
 
-
 import ClearFiltersButton from "@/components/shared/ClearFilterButton";
 import RefreshButton from "@/components/shared/RefreshButton";
 import {Input} from "@/components/ui/input";

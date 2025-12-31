@@ -1,6 +1,7 @@
 import LoginForm from "@/components/login-form";
+import {Suspense} from "react";
 
-const LoginPage = async ({ searchParams }: { searchParams?: Promise<{ redirect?: string }> }) => {
+const LoginPage = async ({searchParams}: {searchParams?: Promise<{redirect?: string}>}) => {
   const param = await searchParams;
 
   return (
@@ -10,7 +11,9 @@ const LoginPage = async ({ searchParams }: { searchParams?: Promise<{ redirect?:
           <h1 className="text-3xl font-bold">Welcome Back</h1>
           <p className="text-gray-500">Enter your credentials to access your account</p>
         </div>
-        <LoginForm redirect={param?.redirect} />
+        <Suspense fallback={<></>}>
+          <LoginForm redirect={param?.redirect} />
+        </Suspense>
       </div>
     </div>
   );
