@@ -4,6 +4,7 @@
 import {server_fetch} from "@/lib/server-fetch";
 import {zodValidator} from "@/lib/zodValidator";
 import {createAdminZodSchema, updateAdminZodSchema} from "@/zod/admin.validation";
+import {revalidateTag} from "next/cache";
 
 /**
  * CREATE ADMIN
@@ -53,8 +54,14 @@ export async function createAdmin(_prevState: any, formData: FormData) {
     const response = await server_fetch.post("/user/create-admin", {
       body: newFormData,
     });
-
     const result = await response.json();
+
+    if (result.success) {
+      revalidateTag("admins-list", {expire: 0});
+      revalidateTag("admins-page-1", {expire: 0});
+      revalidateTag("admin-dashboard-meta", {expire: 0});
+    }
+
     return result;
   } catch (error: any) {
     console.error("Create admin error:", error);
@@ -72,15 +79,23 @@ export async function createAdmin(_prevState: any, formData: FormData) {
  */
 export async function getAdmins(queryString?: string) {
   try {
-    const response = await server_fetch.get(`/admin${queryString ? `?${queryString}` : ""}`);
+    const searchParams = new URLSearchParams(queryString);
+    const page = searchParams.get("page") || "1";
+    const searchTerm = searchParams.get("searchTerm") || "all";
+
+    const response = await server_fetch.get(`/admin${queryString ? `?${queryString}` : ""}`, {
+      next: {
+        tags: ["admins-list", `admins-page-${page}`, `admins-search-${searchTerm}`],
+        revalidate: 180,
+      },
+    });
     const result = await response.json();
+
     return result;
   } catch (error: any) {
     console.log(error);
-    return {
-      success: false,
-      message: `${process.env.NODE_ENV === "development" ? error.message : "Something went wrong"}`,
-    };
+
+    return {success: false, message: `${process.env.NODE_ENV === "development" ? error.message : "Something went wrong"}`};
   }
 }
 
@@ -90,11 +105,18 @@ export async function getAdmins(queryString?: string) {
  */
 export async function getAdminById(id: string) {
   try {
-    const response = await server_fetch.get(`/admin/${id}`);
+    const response = await server_fetch.get(`/admin/${id}`, {
+      next: {
+        tags: [`admin-${id}`, "admins-list"],
+        revalidate: 180, // more responsive admin profile updates
+      },
+    });
     const result = await response.json();
+
     return result;
   } catch (error: any) {
     console.log(error);
+
     return {
       success: false,
       message: `${process.env.NODE_ENV === "development" ? error.message : "Something went wrong"}`,
@@ -151,11 +173,18 @@ export async function updateAdmin(id: string, _prevState: any, formData: FormDat
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(validation.data),
     });
-
     const result = await response.json();
+
+    if (result.success) {
+      revalidateTag("admins-list", {expire: 0});
+      revalidateTag("admins-page-1", {expire: 0});
+      revalidateTag("admin-dashboard-meta", {expire: 0});
+    }
+
     return result;
   } catch (error: any) {
     console.error("Update admin error:", error);
+
     return {
       success: false,
       message: process.env.NODE_ENV === "development" ? error.message : "Failed to update admin",
@@ -172,9 +201,17 @@ export async function softDeleteAdmin(id: string) {
   try {
     const response = await server_fetch.delete(`/admin/soft/${id}`);
     const result = await response.json();
+
+    if (result.success) {
+      revalidateTag("admins-list", {expire: 0});
+      revalidateTag("admins-page-1", {expire: 0});
+      revalidateTag("admin-dashboard-meta", {expire: 0});
+    }
+
     return result;
   } catch (error: any) {
     console.log(error);
+
     return {
       success: false,
       message: `${process.env.NODE_ENV === "development" ? error.message : "Something went wrong"}`,
@@ -190,9 +227,17 @@ export async function deleteAdmin(id: string) {
   try {
     const response = await server_fetch.delete(`/admin/${id}`);
     const result = await response.json();
+    
+    if (result.success) {
+      revalidateTag("admins-list", {expire: 0});
+      revalidateTag("admins-page-1", {expire: 0});
+      revalidateTag("admin-dashboard-meta", {expire: 0});
+    }
+
     return result;
   } catch (error: any) {
     console.log(error);
+
     return {
       success: false,
       message: `${process.env.NODE_ENV === "development" ? error.message : "Something went wrong"}`,

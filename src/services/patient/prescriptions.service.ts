@@ -2,6 +2,7 @@
 
 import {server_fetch} from "@/lib/server-fetch";
 import {IPrescriptionFormData} from "@/types/prescription.interface";
+import {revalidateTag} from "next/cache";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export async function createPrescription(data: IPrescriptionFormData) {
@@ -11,6 +12,11 @@ export async function createPrescription(data: IPrescriptionFormData) {
       headers: {"Content-Type": "application/json"},
     });
     const result = await response.json();
+
+    if (result.success) {
+      revalidateTag("my-prescriptions", {expire: 0});
+      revalidateTag("my-appointments", {expire: 0});
+    }
 
     return result;
   } catch (error: any) {
@@ -22,7 +28,12 @@ export async function createPrescription(data: IPrescriptionFormData) {
 
 export async function getMyPrescriptions(queryString?: string) {
   try {
-    const response = await server_fetch.get(`/prescription/my-prescription${queryString ? `?${queryString}` : ""}`);
+    const response = await server_fetch.get(`/prescription/my-prescription${queryString ? `?${queryString}` : ""}`, {
+      next: {
+        tags: ["my-prescriptions"],
+        revalidate: 300,
+      },
+    });
     const result = await response.json();
 
     return result;
@@ -35,7 +46,12 @@ export async function getMyPrescriptions(queryString?: string) {
 
 export async function getAllPrescriptions(queryString?: string) {
   try {
-    const response = await server_fetch.get(`/prescription${queryString ? `?${queryString}` : ""}`);
+    const response = await server_fetch.get(`/prescription${queryString ? `?${queryString}` : ""}`, {
+      next: {
+        tags: ["prescriptions-list"],
+        revalidate: 300,
+      },
+    });
     const result = await response.json();
 
     return result;

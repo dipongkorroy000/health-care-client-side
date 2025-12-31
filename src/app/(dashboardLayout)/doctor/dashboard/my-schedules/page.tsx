@@ -4,7 +4,7 @@ import MySchedulesTable from "@/components/modules/doctor/my-schedules/MySchedul
 import TablePagination from "@/components/shared/TablePagination";
 import {TableSkeleton} from "@/components/shared/TableSkeleton";
 import {queryStringFormatter} from "@/lib/formatters";
-import {getAvailableSchedules, getDoctorOwnSchedules} from "@/services/doctor/doctor.schedule";
+import {getAvailableSchedules, getDoctorOwnSchedules} from "@/services/doctor/doctorSchedule.service";
 import {Suspense} from "react";
 
 interface DoctorMySchedulesPageProps {

@@ -4,7 +4,7 @@ import {Button} from "@/components/ui/button";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Label} from "@/components/ui/label";
-import {createDoctorSchedule, getAvailableSchedules} from "@/services/doctor/doctor.schedule";
+import {createDoctorSchedule, getAvailableSchedules} from "@/services/doctor/doctorSchedule.service";
 import {ISchedule} from "@/types/schedule.interface";
 import {format} from "date-fns";
 import {Calendar} from "lucide-react";

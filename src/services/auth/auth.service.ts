@@ -1,14 +1,11 @@
 "use server";
 
-import {getDefaultDashboardRoute, isValidRedirectForRole, UserRole} from "@/lib/auth-utils";
 import {zodValidator} from "@/lib/zodValidator";
 import {resetPasswordSchema} from "@/zod/auth.validation";
 import {parse} from "cookie";
 import jwt from "jsonwebtoken";
 import {revalidateTag} from "next/cache";
-import {redirect} from "next/navigation";
 import {deleteCookie, getCookie, setCookie} from "./tokenHandler";
-import getUserInfo from "./getUserInfo";
 import {server_fetch} from "@/lib/server-fetch";
 import {verifyAccessToken} from "@/lib/jwtHandlers";
 
@@ -48,7 +45,9 @@ export async function updateMyProfile(formData: FormData) {
 
 // Reset Password
 export async function resetPassword(_prevState: any, formData: FormData) {
-  const redirectTo = formData.get("redirect") || null;
+  const isEmailReset = formData.get("isEmailReset") === "true";
+  const email = formData.get("email") as string;
+  const token = formData.get("token") as string;
 
   // Build validation payload
   const validationPayload = {
@@ -69,39 +68,34 @@ export async function resetPassword(_prevState: any, formData: FormData) {
   }
 
   try {
-    const accessToken = await getCookie("accessToken");
+    if (token) jwt.verify(token, process.env.RESET_PASS_TOKEN_SECRET as string);
 
-    if (!accessToken) throw new Error("User not authenticated");
+    let response;
 
-    const verifiedToken = jwt.verify(accessToken as string, process.env.JWT_SECRET!) as jwt.JwtPayload;
+    if (isEmailReset) {
+      // Case 1: Password reset from email link (with token)
+      if (!email || !token) return {success: false, message: "Invalid reset link"};
 
-    const userRole: UserRole = await verifiedToken.role;
-
-    const user = await getUserInfo();
-    // API Call
-    const response = await server_fetch.post("/auth/reset-password", {
-      body: JSON.stringify({id: user?.id, password: validationPayload.newPassword}),
-      headers: {Authorization: accessToken, "Content-Type": "application/json"},
-    });
+      response = await server_fetch.post("/auth/reset-password", {
+        headers: {"Content-Type": "application/json", Authorization: `Bearer ${token}`},
+        body: JSON.stringify({email: email, password: validationPayload.newPassword}),
+      });
+    } else {
+      // Case 2: Newly created user (authenticated, needPasswordChange)
+      response = await server_fetch.post("/auth/reset-password", {
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({password: validationPayload.newPassword}),
+      });
+    }
 
     const result = await response.json();
 
-    if (!result.success) throw new Error(result.message || "Reset password failed");
+    if (!result.success) throw new Error(result.message || "Password reset failed");
 
-    if (result.success) revalidateTag("user-info", {expire: 0}); // await get
+    if (result.success) revalidateTag("user-info", {expire: 0});
 
-    if (redirectTo) {
-      const requestedPath = redirectTo.toString();
-
-      if (isValidRedirectForRole(requestedPath, userRole)) redirect(`${requestedPath}?loggedIn=true`);
-      else redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`);
-      // ---
-    } else redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`);
-    // ---
+    return {success: true, message: "Password reset successfully! Redirecting to login...", redirectToLogin: true};
   } catch (error: any) {
-    // Re-throw NEXT_REDIRECT errors so Next.js can handle them
-    if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
-
     return {success: false, message: error?.message || "Something went wrong", formData: validationPayload};
   }
 }
@@ -113,25 +107,25 @@ export async function getNewAccessToken() {
 
     //Case 1: Both tokens are missing - user is logged out
     if (!accessToken && !refreshToken) return {tokenRefreshed: false};
-    
+
     // Case 2 : Access Token exist- and need to verify
     if (accessToken) {
       const verifiedToken = await verifyAccessToken(accessToken);
-      
+
       if (verifiedToken.success) return {tokenRefreshed: false};
     }
-    
+
     //Case 3 : refresh Token is missing- user is logged out
     if (!refreshToken) return {tokenRefreshed: false};
-    
+
     //Case 4: Access Token is invalid/expired- try to get a new one using refresh token
     // This is the only case we need to call the API
-    
+
     // Now we know: accessToken is invalid/missing AND refreshToken exists
     // Safe to call the API
     let accessTokenObject: null | any = null;
     let refreshTokenObject: null | any = null;
-    
+
     // console.log({refreshToken});
     // API Call - serverFetch will skip getNewAccessToken for /auth/refresh-token endpoint
     const response = await server_fetch.post("/auth/refresh-token", {headers: {Cookie: `refreshToken=${refreshToken}`}});

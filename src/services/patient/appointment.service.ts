@@ -2,6 +2,7 @@
 
 import {server_fetch} from "@/lib/server-fetch";
 import {IAppointmentFormData} from "@/types/appointments.interface";
+import {revalidateTag} from "next/cache";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export async function createAppointment(data: IAppointmentFormData) {
@@ -11,6 +12,14 @@ export async function createAppointment(data: IAppointmentFormData) {
       headers: {"Content-Type": "application/json"},
     });
     const result = await response.json();
+
+    if (result.success) {
+      revalidateTag("my-appointments", {expire: 0});
+      revalidateTag("appointments-list", {expire: 0});
+      revalidateTag("patient-dashboard-meta", {expire: 0});
+      revalidateTag("admin-dashboard-meta", {expire: 0});
+      revalidateTag("doctor-dashboard-meta", {expire: 0});
+    }
 
     return result;
   } catch (error: any) {
@@ -23,9 +32,41 @@ export async function createAppointment(data: IAppointmentFormData) {
   }
 }
 
+export async function createAppointmentWithPayLater(data: IAppointmentFormData) {
+  try {
+    const response = await server_fetch.post("/appointment/pay-later", {
+      body: JSON.stringify(data),
+      headers: {"Content-Type": "application/json"},
+    });
+    const result = await response.json();
+
+    if (result.success) {
+      revalidateTag("my-appointments", {expire: 0});
+      revalidateTag("appointments-list", {expire: 0});
+      revalidateTag("patient-dashboard-meta", {expire: 0});
+      revalidateTag("admin-dashboard-meta", {expire: 0});
+      revalidateTag("doctor-dashboard-meta", {expire: 0});
+    }
+
+    return result;
+  } catch (error: any) {
+    console.error("Error creating appointment with pay later:", error);
+
+    return {
+      success: false,
+      message: process.env.NODE_ENV === "development" ? error.message : "Failed to book appointment",
+    };
+  }
+}
+
 export async function getMyAppointments(queryString?: string) {
   try {
-    const response = await server_fetch.get(`/appointment/my-appointments${queryString ? `?${queryString}` : "?sortBy=createdAt&sortOrder=desc"}`);
+    const response = await server_fetch.get(`/appointment/my-appointments${queryString ? `?${queryString}` : "?sortBy=createdAt&sortOrder=desc"}`, {
+      next: {
+        tags: ["my-appointments"],
+        revalidate: 120,
+      },
+    });
     const result = await response.json();
 
     return result;
@@ -38,7 +79,12 @@ export async function getMyAppointments(queryString?: string) {
 
 export async function getAppointmentById(appointmentId: string) {
   try {
-    const response = await server_fetch.get("/appointment/my-appointments");
+    const response = await server_fetch.get("/appointment/my-appointments", {
+      next: {
+        tags: ["my-appointments", `appointment-${appointmentId}`],
+        revalidate: 180,
+      },
+    });
     const result = await response.json();
 
     if (result.success && result.data) {
@@ -64,6 +110,16 @@ export async function changeAppointmentStatus(appointmentId: string, status: str
       headers: {"Content-Type": "application/json"},
     });
     const result = await response.json();
+
+    if (result.success) {
+      // Invalidate appointment caches
+      revalidateTag("my-appointments", {expire: 0});
+      revalidateTag("appointments-list", {expire: 0});
+      revalidateTag(`appointment-${appointmentId}`, {expire: 0});
+      // Update dashboard for immediate status reflection
+      revalidateTag("patient-dashboard-meta", {expire: 0});
+      revalidateTag("dashboard-meta", {expire: 0});
+    }
 
     return result;
   } catch (error: any) {

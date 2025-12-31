@@ -5,6 +5,7 @@ import {server_fetch} from "@/lib/server-fetch";
 import {zodValidator} from "@/lib/zodValidator";
 import {IDoctor} from "@/types/doctor.interface";
 import {createDoctorZodSchema, updateDoctorZodSchema} from "@/zod/doctors.validation";
+import {revalidateTag} from "next/cache";
 
 export async function createDoctor(_prevState: any, formData: FormData) {
   // Parse specialties array
@@ -78,8 +79,16 @@ export async function createDoctor(_prevState: any, formData: FormData) {
 
   try {
     const response = await server_fetch.post("/user/create-doctor", {body: newFormData});
-
     const result = await response.json();
+
+    if (result.success) {
+      revalidateTag("doctors-list", {expire: 0});
+      revalidateTag("doctors-page-1", {expire: 0});
+      revalidateTag("doctors-search-all", {expire: 0});
+      revalidateTag("admin-dashboard-meta", {expire: 0});
+      revalidateTag("doctor-dashboard-meta", {expire: 0});
+    }
+
     return result;
   } catch (error: any) {
     console.log(error);
@@ -90,9 +99,19 @@ export async function createDoctor(_prevState: any, formData: FormData) {
 
 export async function getDoctors(queryString?: string) {
   try {
-    const response = await server_fetch.get(`/doctors${queryString ? `?${queryString}` : ""}`);
+    const searchParams = new URLSearchParams(queryString);
+    const page = searchParams.get("page") || "1";
+    const searchTerm = searchParams.get("searchTerm") || "all";
 
-    return await response.json();
+    const response = await server_fetch.get(`/doctor${queryString ? `?${queryString}` : ""}`, {
+      next: {
+        tags: ["doctors-list", `doctors-page-${page}`, `doctors-search-${searchTerm}`],
+        revalidate: 180, // faster doctor list updates
+      },
+    });
+    const result = await response.json();
+
+    return result;
   } catch (error: any) {
     console.log(error);
 
@@ -105,7 +124,12 @@ export async function getDoctors(queryString?: string) {
 
 export async function getDoctorById(id: string) {
   try {
-    const response = await server_fetch.get(`/doctors/${id}`);
+    const response = await server_fetch.get(`/doctors/${id}`, {
+      next: {
+        tags: [`doctor-${id}`, "doctors-list"],
+        revalidate: 180,
+      },
+    });
 
     return await response.json();
   } catch (error: any) {
@@ -147,7 +171,7 @@ export async function updateDoctor(id: string, _prevState: any, formData: FormDa
   if (removeSpecialtiesValue) {
     try {
       const parsed = JSON.parse(removeSpecialtiesValue);
-      
+
       if (Array.isArray(parsed) && parsed.length > 0) payload.removeSpecialties = parsed;
     } catch {}
   }
@@ -168,8 +192,17 @@ export async function updateDoctor(id: string, _prevState: any, formData: FormDa
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(validatedPayload.data),
     });
-
     const result = await response.json();
+
+    if (result.success) {
+      revalidateTag("doctors-list", {expire: 0});
+      revalidateTag(`doctor-${id}`, {expire: 0});
+      revalidateTag("doctors-page-1", {expire: 0});
+      revalidateTag("doctors-search-all", {expire: 0});
+      revalidateTag("admin-dashboard-meta", {expire: 0});
+      revalidateTag("doctor-dashboard-meta", {expire: 0});
+    }
+
     // console.log({result}); // clg
     return result;
   } catch (error: any) {
@@ -182,8 +215,18 @@ export async function updateDoctor(id: string, _prevState: any, formData: FormDa
 export async function softDeleteDoctor(id: string) {
   try {
     const response = await server_fetch.delete(`/doctors/${id}`);
+    const result = await response.json();
 
-    return await response.json();
+    if (result.success) {
+      revalidateTag("doctors-list", {expire: 0});
+      revalidateTag(`doctor-${id}`, {expire: 0});
+      revalidateTag("doctors-page-1", {expire: 0});
+      revalidateTag("doctors-search-all", {expire: 0});
+      revalidateTag("admin-dashboard-meta", {expire: 0});
+      revalidateTag("doctor-dashboard-meta", {expire: 0});
+    }
+
+    return result;
   } catch (error: any) {
     console.log(error);
 
@@ -197,8 +240,18 @@ export async function softDeleteDoctor(id: string) {
 export async function deleteDoctor(id: string) {
   try {
     const response = await server_fetch.delete(`/doctors/${id}`);
+    const result = await response.json();
 
-    return await response.json();
+    if (result.success) {
+      revalidateTag("doctors-list", {expire: 0});
+      revalidateTag(`doctor-${id}`, {expire: 0});
+      revalidateTag("doctors-page-1", {expire: 0});
+      revalidateTag("doctors-search-all", {expire: 0});
+      revalidateTag("admin-dashboard-meta", {expire: 0});
+      revalidateTag("doctor-dashboard-meta", {expire: 0});
+    }
+
+    return result;
   } catch (error: any) {
     console.log(error);
 

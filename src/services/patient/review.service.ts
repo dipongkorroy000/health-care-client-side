@@ -2,13 +2,19 @@
 
 import {server_fetch} from "@/lib/server-fetch";
 import {IReviewFormData} from "@/types/review.interface";
+import {revalidateTag} from "next/cache";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export async function getReviews(queryString?: string) {
   try {
     const url = queryString ? `/review?${queryString}` : "/review";
 
-    const response = await server_fetch.get(url);
+    const response = await server_fetch.get(url, {
+      next: {
+        tags: ["reviews-list"],
+        revalidate: 300,
+      },
+    });
     const result = await response.json();
 
     return {success: true, data: result.data, meta: result.meta};
@@ -26,6 +32,11 @@ export async function createReview(data: IReviewFormData) {
       headers: {"Content-Type": "application/json"},
     });
     const result = await response.json();
+
+    if (result.success && data.doctorId) {
+      revalidateTag("reviews-list", {expire: 0});
+      revalidateTag(`doctor-${data.doctorId}`, {expire: 0}); // Update doctor's review count
+    }
 
     return result;
   } catch (error: any) {

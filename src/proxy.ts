@@ -42,7 +42,7 @@ export async function proxy(request: NextRequest) {
   const accessToken = (await getCookie("accessToken")) || null;
 
   if (accessToken) {
-    const verifiedToken: JwtPayload | string = jwt.verify(accessToken, process.env.JWT_SECRET as string);
+    const verifiedToken = await jwt.verify(accessToken, process.env.JWT_SECRET as string);
 
     if (typeof verifiedToken === "string") {
       await deleteCookie("accessToken");
@@ -53,7 +53,9 @@ export async function proxy(request: NextRequest) {
   }
 
   // Rule 1 : User is logged in and trying to access auth route. Redirect to default dashboard
-  if (accessToken && isAuthRoute(pathname)) return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole as UserRole), request.url));
+  if (accessToken && isAuthRoute(pathname)) {
+    return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole as UserRole), request.url));
+  }
 
   // Rule 2 : User is trying to access open public route
   if (getRouteOwner(pathname) === null) return NextResponse.next();
@@ -74,7 +76,9 @@ export async function proxy(request: NextRequest) {
     if (userInfo.needPasswordChange) {
       if (pathname !== "/reset-password") {
         const resetPasswordUrl = new URL("/reset-password", request.url);
+        
         resetPasswordUrl.searchParams.set("redirect", pathname);
+
         return NextResponse.redirect(resetPasswordUrl);
       }
       return NextResponse.next();

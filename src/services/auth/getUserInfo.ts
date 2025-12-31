@@ -9,13 +9,12 @@ const getUserInfo = async (): Promise<UserInfo | any> => {
 
   try {
     const response = await server_fetch.get("/auth/me", {
-      cache: "force-cache",
-      next: {tags: ["user-info"]}, // when update user data then call this api again-> user-info
+      next: {tags: ["user-info"], revalidate: 180}, // 180s after revalidate this api
     });
 
     const result = await response.json();
 
-    userInfo = {name: result.data.admin?.name || result.data.doctor?.name || result.data.patient?.name || "Unknown User", ...result.data};
+    userInfo = {name: result.data?.admin?.name || result.data?.doctor?.name || result.data?.patient?.name || "Unknown User", ...result.data};
 
     return userInfo;
   } catch (error: any) {

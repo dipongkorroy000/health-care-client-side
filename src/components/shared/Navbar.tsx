@@ -1,19 +1,27 @@
 import Link from "next/link";
-import { Button } from "../ui/button";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
-import { Menu } from "lucide-react";
-import { getCookie } from "@/services/auth/tokenHandler";
+import {Button} from "../ui/button";
+import {Sheet, SheetContent, SheetTitle, SheetTrigger} from "../ui/sheet";
+import {Menu} from "lucide-react";
+import {getCookie} from "@/services/auth/tokenHandler";
 import LogoutButton from "./LogoutButton";
+import getUserInfo from "@/services/auth/getUserInfo";
+import {getDefaultDashboardRoute} from "@/lib/auth-utils";
 
 const Navbar = async () => {
-  const navItems = [
-    { href: "/consultation", label: "Consultation" },
-    { href: "#", label: "Health Plans" },
-    { href: "#", label: "Medicine" },
-    { href: "#", label: "Diagnostics" },
-    { href: "#", label: "NGOs" },
-  ];
   const accessToken = await getCookie("accessToken"); // here using async await - but any handler not use - this is server component
+
+  const user = await getUserInfo();
+
+  const defaultDashboard = getDefaultDashboardRoute(user?.role);
+
+  const navItems = [
+    {href: "/consultation", label: "Consultation"},
+    {href: "#", label: "Health Plans"},
+    {href: "#", label: "Medicine"},
+    {href: "#", label: "Diagnostics"},
+    {href: "#", label: "Ngo"},
+  ];
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur  dark:bg-background/95">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -27,6 +35,11 @@ const Navbar = async () => {
               {link.label}
             </Link>
           ))}
+          {accessToken && (
+            <Link href={`${defaultDashboard}`} className="text-foreground hover:text-primary transition-colors">
+              Dashboard
+            </Link>
+          )}
         </nav>
 
         <div className="hidden md:flex items-center space-x-2">
