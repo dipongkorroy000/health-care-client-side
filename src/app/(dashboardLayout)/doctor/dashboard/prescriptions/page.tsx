@@ -3,6 +3,7 @@ import {getMyAppointments} from "@/services/patient/appointment.service";
 
 import {IAppointment} from "@/types/appointments.interface";
 import {IPrescription} from "@/types/prescription.interface";
+import {Suspense} from "react";
 
 export default async function DoctorPrescriptionsPage() {
   // Get all doctor's appointments
@@ -24,8 +25,9 @@ export default async function DoctorPrescriptionsPage() {
         <h1 className="text-3xl font-bold tracking-tight">My Prescriptions</h1>
         <p className="text-muted-foreground mt-2">View all prescriptions you have provided to patients</p>
       </div>
-
-      <DoctorPrescriptionsTable prescriptions={prescriptions} />
+      <Suspense fallback={<></>}>
+        <DoctorPrescriptionsTable prescriptions={prescriptions} />
+      </Suspense>
     </div>
   );
 }

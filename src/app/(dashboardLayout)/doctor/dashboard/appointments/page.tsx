@@ -1,10 +1,11 @@
 import DoctorAppointmentsTable from "@/components/modules/doctor/doctor-appointments/DoctorAppointmentTable";
 import {getMyAppointments} from "@/services/patient/appointment.service";
 import {IAppointment} from "@/types/appointments.interface";
+import {Suspense} from "react";
 
 export default async function DoctorAppointmentsPage() {
   const response = await getMyAppointments();
-  
+
   const appointments: IAppointment[] = response?.data || [];
 
   return (
@@ -13,8 +14,9 @@ export default async function DoctorAppointmentsPage() {
         <h1 className="text-3xl font-bold tracking-tight">My Appointments</h1>
         <p className="text-muted-foreground mt-2">Manage your patient appointments and prescriptions</p>
       </div>
-
-      <DoctorAppointmentsTable appointments={appointments} />
+      <Suspense fallback={<></>}>
+        <DoctorAppointmentsTable appointments={appointments} />
+      </Suspense>
     </div>
   );
 }

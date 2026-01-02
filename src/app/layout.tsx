@@ -4,7 +4,7 @@ import "./globals.css";
 import {Toaster} from "sonner";
 import LogoutSuccessToast from "@/components/shared/LogoutSuccessToast";
 import LoginSuccessToast from "@/components/shared/LoginSuccessToast";
-export const dynamic = "force-dynamic";
+import {Suspense} from "react";
 
 const geistSans = Geist({variable: "--font-geist-sans", subsets: ["latin"]});
 
@@ -18,8 +18,10 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
         <Toaster position="top-right" richColors></Toaster>
-        <LoginSuccessToast></LoginSuccessToast>
-        <LogoutSuccessToast></LogoutSuccessToast>
+        <Suspense fallback={null}>
+          <LoginSuccessToast></LoginSuccessToast>
+          <LogoutSuccessToast></LogoutSuccessToast>
+        </Suspense>
       </body>
     </html>
   );
