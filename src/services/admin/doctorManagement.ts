@@ -103,7 +103,7 @@ export async function getDoctors(queryString?: string) {
     const page = searchParams.get("page") || "1";
     const searchTerm = searchParams.get("searchTerm") || "all";
 
-    const response = await server_fetch.get(`/doctor${queryString ? `?${queryString}` : ""}`, {
+    const response = await server_fetch.get(`/doctors${queryString ? `?${queryString}` : ""}`, {
       next: {
         tags: ["doctors-list", `doctors-page-${page}`, `doctors-search-${searchTerm}`],
         revalidate: 180, // faster doctor list updates
