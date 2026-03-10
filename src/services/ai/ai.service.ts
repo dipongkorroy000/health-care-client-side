@@ -13,7 +13,7 @@ export async function getAIDoctorSuggestion(symptoms: string) {
   }
 
   try {
-    const response = await server_fetch.post("/doctor/suggestion", {
+    const response = await server_fetch.post("/doctors/suggestion", {
       body: JSON.stringify({symptoms: symptoms.trim()}),
       headers: {
         "Content-Type": "application/json",
